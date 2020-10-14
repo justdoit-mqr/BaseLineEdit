@@ -33,6 +33,19 @@ BaseLineEdit::BaseLineEdit(QWidget *parent, QWidget *leftWid, QWidget *rightWid)
             leftRightLayout->addWidget(rightWidget);
         }
     }
+    setTextSelectionEnabled(true);//默认文本可以被选中
+}
+/*
+ *@brief:   主动发射编辑信号editSig()
+ * 因为Qt4中signals是protected权限，无法类外调用，所以这里设置一个public权限接口，实现在类外
+ * 调用主动发射编辑信号
+ *@author:  缪庆瑞
+ *@date:    2020.05.26
+ */
+void BaseLineEdit::emitEditSig()
+{
+    this->setFocus();
+    emit editSig();
 }
 /*
  *@brief:   设置行编辑框左右布局margin，主要为了方便调整左右侧部件的位置
@@ -46,8 +59,27 @@ void BaseLineEdit::setLeftRightLayoutMargin(int left, int right, int top, int bo
     if(leftRightLayout)
     {
         leftRightLayout->setContentsMargins(left,top,right,bottom);
-        //修改布局的margin后需要重新设置编辑框文本的margin
-        autoAdjustTextMargins();
+        /* 在编辑框显示之前左右部件的大小如果没有fixed，那么默认将采用部件自身的推荐大小。所以
+         * 这里只在部件显示(内部已完成布局)的情况下才自动调整文本的margin，避免按照部件推荐大小
+         * 设置margin导致编辑框的大小策略受到不良影响。
+         */
+        if(this->isVisible())
+        {
+            autoAdjustTextMargins();
+        }
+    }
+}
+/*
+ *@brief:   鼠标移动事件处理
+ *@author:  缪庆瑞
+ *@date:    2020.05.20
+ *@param:   event:鼠标事件
+ */
+void BaseLineEdit::mouseMoveEvent(QMouseEvent *event)
+{
+    if(textSelectionEnabled)
+    {
+        QLineEdit::mouseMoveEvent(event);
     }
 }
 /*
@@ -64,6 +96,19 @@ void BaseLineEdit::mouseReleaseEvent(QMouseEvent *event)
         emit editSig();//发射编辑信号
     }
     QLineEdit::mouseReleaseEvent(event);
+}
+/*
+ *@brief:   鼠标双击事件处理
+ *@author:  缪庆瑞
+ *@date:    2020.05.20
+ *@param:   event:鼠标事件
+ */
+void BaseLineEdit::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    if(textSelectionEnabled)
+    {
+        QLineEdit::mouseDoubleClickEvent(event);
+    }
 }
 /*
  *@brief:   部件大小调整事件处理 (用来自动调整编辑框文本的margins)
