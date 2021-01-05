@@ -34,6 +34,7 @@ BaseLineEdit::BaseLineEdit(QWidget *parent, QWidget *leftWid, QWidget *rightWid)
         }
     }
     setTextSelectionEnabled(true);//默认文本可以被选中
+    setKeyboardInputEnabled(false);//默认不允许外部键盘输入
 }
 /*
  *@brief:   主动发射编辑信号editSig()
@@ -108,6 +109,19 @@ void BaseLineEdit::mouseDoubleClickEvent(QMouseEvent *event)
     if(textSelectionEnabled)
     {
         QLineEdit::mouseDoubleClickEvent(event);
+    }
+}
+/*
+ *@brief:   键盘按下事件
+ *@author:  缪庆瑞
+ *@date:    2020.11.26
+ *@param:   event:键盘事件
+ */
+void BaseLineEdit::keyPressEvent(QKeyEvent *event)
+{
+    if(keyboardInputEnabled)
+    {
+        QLineEdit::keyPressEvent(event);
     }
 }
 /*

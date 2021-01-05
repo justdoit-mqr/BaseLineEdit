@@ -8,7 +8,10 @@
  * 编辑框单独安装事件过滤器，即可对点击编辑操作进行处理
  * 3.该类重新实现了mouseMoveEvent()和mouseDoubleClickEvent()方法，内部对textSelectionEnabled
  * 状态判断，用来控制编辑框文本是否可以被选中。
- * 4.该类添加了用于在编辑框两端设置部件的功能接口，可以放置任意可显示部件并调节间距细节。为了
+ * 4.该类重新实现了keyPressEvent()方法，内部对keyboardInputEnabled状态判断，用来控制是否允许
+ * 外部键盘输入。因为该控件主要用于嵌入式触摸显示设备，通常采用软键盘输入以及对数据合法范围
+ * 的控制，所以在构造中默认设置不允许外部键盘输入，避免与软键盘处理逻辑冲突。
+ * 5.该类添加了用于在编辑框两端设置部件的功能接口，可以放置任意可显示部件并调节间距细节。为了
  * 保持良好的移植性，部件的交互需要在类外(或者该类的派生类)实现，类内不做处理。
  */
 #ifndef BASELINEEDIT_H
@@ -28,12 +31,16 @@ public:
 
     void emitEditSig();//主动发射编辑信号
     void setLeftRightLayoutMargin(int left,int right,int top=0,int bottom=0);//设置行编辑框左右布局margin
-    void setTextSelectionEnabled(bool enabled){this->textSelectionEnabled = enabled;}//设置编辑框文本是否可以被选中
+    //设置编辑框文本是否可以被选中
+    void setTextSelectionEnabled(bool enabled){this->textSelectionEnabled = enabled;}
+    //设置编辑框文本是否允许外部键盘输入
+    void setKeyboardInputEnabled(bool enabled){this->keyboardInputEnabled = enabled;}
 
 protected:
     virtual void mouseMoveEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
     virtual void mouseDoubleClickEvent(QMouseEvent *event);
+    virtual void keyPressEvent(QKeyEvent *event);
     virtual void resizeEvent(QResizeEvent *event);
 
 private:
@@ -41,6 +48,8 @@ private:
 
     //标识编辑框文本是否可以被选中
     bool textSelectionEnabled;
+    //标识编辑框是否允许外部键盘输入
+    bool keyboardInputEnabled;
     //行编辑框布局(用来布局左/右侧部件)
     QHBoxLayout *leftRightLayout;
     QWidget *leftWidget;//行编辑框左侧部件
